@@ -11,6 +11,12 @@ string findOpcode(string &instruction) {
     return extractBits(instruction, 6, 0);
 }
 
+// Extende o sinal de uma string binária até 32 bits
+static string signExtend(const string &bits) {
+    char bitDeSinal = bits[0];
+    return string(32 - bits.size(), bitDeSinal) + bits;
+}
+
 string identifyType(string &opcode) {
     if (opcode == "0110011") return "R";
     if (opcode == "0010011" || opcode == "0000011" || opcode == "1100111") return "I";
@@ -22,8 +28,8 @@ string identifyType(string &opcode) {
     return "INVALID";
 }
 
-string identify_mnemonic(string &binary, string &type) {
-    string opcode = find_opcode(binary);
+string identifyMnemonic(string &binary, string &type) {
+    string opcode = findOpcode(binary);
     string funct3 = extractBits(binary, 14, 12);
     string funct7 = extractBits(binary, 31, 25);
 
@@ -36,7 +42,7 @@ string identify_mnemonic(string &binary, string &type) {
         if (funct3 == "101") return funct7 == "0100000" ? "sra" : "srl";
         if (funct3 == "110") return "or";
         if (funct3 == "111") return "and";
-        
+
         return "invalid";
     }
 
@@ -82,7 +88,7 @@ string identify_mnemonic(string &binary, string &type) {
         if (funct3 == "101") return "bge";
         if (funct3 == "110") return "bltu";
         if (funct3 == "111") return "bgeu";
-        
+
         return "invalid";
     }
 
@@ -90,4 +96,87 @@ string identify_mnemonic(string &binary, string &type) {
     if (type == "J") return "jal";
 
     return "invalid";
+}
+
+// Monta os campos comuns a qualquer tipo de instrução; o tipo é
+// descoberto a partir do opcode, não fixado por quem chama.
+static Instruction baseInstruction(string &binary, unsigned int address) {
+    Instruction inst;
+    inst.address = address;
+    inst.full_instruction = binary;
+    inst.opcode = findOpcode(binary);
+    inst.type = identifyType(inst.opcode);
+    inst.function3 = "";
+    inst.function7 = "";
+    inst.rd = "";
+    inst.rs1 = "";
+    inst.rs2 = "";
+    inst.imm = "";
+    return inst;
+}
+
+static Instruction finish(Instruction inst, string &binary) {
+    inst.mnemonic = identifyMnemonic(binary, inst.type);
+    return inst;
+}
+
+Instruction extract_R(string &binary, unsigned int address) {
+    Instruction inst = baseInstruction(binary, address);
+    inst.function3 = extractBits(binary, 14, 12);
+    inst.function7 = extractBits(binary, 31, 25);
+    inst.rd = extractBits(binary, 11, 7);
+    inst.rs1 = extractBits(binary, 19, 15);
+    inst.rs2 = extractBits(binary, 24, 20);
+    return finish(inst, binary);
+}
+
+Instruction extract_I(string &binary, unsigned int address) {
+    Instruction inst = baseInstruction(binary, address);
+    inst.function3 = extractBits(binary, 14, 12);
+    inst.rd = extractBits(binary, 11, 7);
+    inst.rs1 = extractBits(binary, 19, 15);
+    inst.imm = signExtend(extractBits(binary, 31, 20));
+    return finish(inst, binary);
+}
+
+Instruction extract_S(string &binary, unsigned int address) {
+    Instruction inst = baseInstruction(binary, address);
+    inst.function3 = extractBits(binary, 14, 12);
+    inst.rs1 = extractBits(binary, 19, 15);
+    inst.rs2 = extractBits(binary, 24, 20);
+    inst.imm = signExtend(extractBits(binary, 31, 25) + extractBits(binary, 11, 7));
+    return finish(inst, binary);
+}
+
+Instruction extract_B(string &binary, unsigned int address) {
+    Instruction inst = baseInstruction(binary, address);
+    inst.function3 = extractBits(binary, 14, 12);
+    inst.rs1 = extractBits(binary, 19, 15);
+    inst.rs2 = extractBits(binary, 24, 20);
+
+    string bit12 = extractBits(binary, 31, 31);
+    string bit11 = extractBits(binary, 7, 7);
+    string bits10_5 = extractBits(binary, 30, 25);
+    string bits4_1 = extractBits(binary, 11, 8);
+    inst.imm = signExtend(bit12 + bit11 + bits10_5 + bits4_1 + "0");
+    return finish(inst, binary);
+}
+
+Instruction extract_U(string &binary, unsigned int address) {
+    Instruction inst = baseInstruction(binary, address);
+    inst.rd = extractBits(binary, 11, 7);
+    inst.imm = extractBits(binary, 31, 12) + string(12, '0');
+    return finish(inst, binary);
+}
+
+Instruction extract_J(string &binary, unsigned int address) {
+    Instruction inst = baseInstruction(binary, address);
+    inst.rd = extractBits(binary, 11, 7);
+
+    string bit20 = extractBits(binary, 31, 31);
+    string bits19_12 = extractBits(binary, 19, 12);
+    string bit11 = extractBits(binary, 20, 20);
+    string bits10_1 = extractBits(binary, 30, 21);
+    inst.imm = signExtend(bit20 + bits19_12 + bit11 + bits10_1 + "0");
+    return finish(inst, binary);
 }

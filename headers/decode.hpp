@@ -7,7 +7,7 @@ using namespace std;
 
 string identifyType(string &opcode);
 string identifyMnemonic(string &binary, string &type);
-
+string findOpcode(string &instruction);
 string extractBits(const string &binary, int bitAlto, int bitBaixo);
 
 Instruction extract_R(string &binary, unsigned int address);

@@ -19,6 +19,5 @@ struct Instruction {
 };
 
 Instruction decode_instruction(string &binary, unsigned int address);
-string find_opcode(string &instruction);
 
 #endif
