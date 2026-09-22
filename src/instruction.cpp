@@ -16,7 +16,7 @@ Instruction decode_instruction(string &binary, unsigned int address) {
     invalida.address = address;
     invalida.full_instruction = binary;
     invalida.type = "INVALID";
-    invalida.mnemonic = "invalid";
+    invalida.mnemonic = "INVALID";
     invalida.opcode = opcode;
     return invalida;
 }
