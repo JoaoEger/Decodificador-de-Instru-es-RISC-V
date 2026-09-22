@@ -11,7 +11,7 @@ struct LinhaLida {
     string binary;
 };
 
-vector<LinhaLida> lerArquivoInstrucoes(const string &caminho, unsigned int enderecoBase); 
+vector<LinhaLida> lerArquivoInstrucoes(const string &caminho); 
 bool prepararLinha(const string &linhaOriginal, string &linhaLimpa);
 bool ehFormatoBinario(const string &linha);
 string converterParaBinario32(const string &linha, bool ehBinario);

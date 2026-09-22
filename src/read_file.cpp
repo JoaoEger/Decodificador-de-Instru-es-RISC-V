@@ -51,7 +51,7 @@ string converterParaBinario32(const string &linha, bool ehBinario) {
     return binary;
 }
 
-vector<LinhaLida> lerArquivoInstrucoes(const string &caminho, unsigned int enderecoBase) {
+vector<LinhaLida> lerArquivoInstrucoes(const string &caminho) {
     vector<LinhaLida> resultado;
 
     ifstream arquivo(caminho);
@@ -61,7 +61,7 @@ vector<LinhaLida> lerArquivoInstrucoes(const string &caminho, unsigned int ender
     }
 
     string linha;
-    unsigned int endereco = enderecoBase;
+    unsigned int endereco = 0x00000000;
     while (getline(arquivo, linha)) {
         string linhaLimpa;
         if (!prepararLinha(linha, linhaLimpa)) continue;
