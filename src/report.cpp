@@ -6,7 +6,6 @@ string formatarLinhaSaida(const Instruction &inst) {
     ostringstream out;
     out << toHex(inst.address, 8) << " | " << binaryToHex(inst.full_instruction)
         << " | " << left << setw(8) << inst.type << " | " << setw(8) << inst.mnemonic << " |";
-
     if (!inst.rd.empty()) out << " rd=" << bitsParaNumero(inst.rd);
     if (!inst.rs1.empty()) out << " rs1=" << bitsParaNumero(inst.rs1);
     if (!inst.rs2.empty()) out << " rs2=" << bitsParaNumero(inst.rs2);
@@ -16,7 +15,25 @@ string formatarLinhaSaida(const Instruction &inst) {
     if (!inst.function7.empty()) out << " function7=" << bitsParaNumero(inst.function7);
 
     out << "  ->  " << paraAssembly(inst);
+
+    string pseudo = identificarPseudoInstrucao(inst);
+    if (!pseudo.empty()) out << "  (pseudo: " << pseudo << ")";
+
     return out.str();
+}
+string identificarPseudoInstrucao(const Instruction &inst) {
+    // addi x0, x0, 0 = nop
+    if (inst.mnemonic == "addi" && bitsParaNumero(inst.rd) == 0 && bitsParaNumero(inst.rs1) == 0
+        && bitsParaNumeroComSinal(inst.imm) == 0) {
+        return "nop";
+    }
+    // jalr x0, 0(x1) = ret
+    if (inst.mnemonic == "jalr" && bitsParaNumero(inst.rd) == 0 && bitsParaNumero(inst.rs1) == 1
+        && bitsParaNumeroComSinal(inst.imm) == 0) {
+        return "ret";
+    }
+
+    return "";
 }
 
 string relatorioCPI(const vector<Instruction> &instrucoes) {

@@ -8,5 +8,5 @@ using namespace std;
 
 string formatarLinhaSaida(const Instruction &inst);
 string relatorioCPI(const vector<Instruction> &instrucoes);
-
+string identificarPseudoInstrucao(const Instruction &inst);
 #endif
