@@ -30,4 +30,6 @@ int main(int argc, char *argv[]) {
     for (const Instruction &inst : instrucoes) {
         cout << formatarLinhaSaida(inst) << "\n";
     }
+
+    cout << relatorioCPI(instrucoes) << "\n";
 }
