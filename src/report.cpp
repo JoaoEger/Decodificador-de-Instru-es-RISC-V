@@ -10,6 +10,10 @@ string formatarLinhaSaida(const Instruction &inst) {
     if (!inst.rd.empty()) out << " rd=" << bitsParaNumero(inst.rd);
     if (!inst.rs1.empty()) out << " rs1=" << bitsParaNumero(inst.rs1);
     if (!inst.rs2.empty()) out << " rs2=" << bitsParaNumero(inst.rs2);
+    if (!inst.imm.empty()) out << " imm=" << bitsParaNumeroComSinal(inst.imm);
+    if (!inst.opcode.empty()) out << " opcode=" << inst.opcode;
+    if (!inst.function3.empty()) out << " function3=" << bitsParaNumero(inst.function3);
+    if (!inst.function7.empty()) out << " function7=" << bitsParaNumero(inst.function7);
 
     out << "  ->  " << paraAssembly(inst);
     return out.str();

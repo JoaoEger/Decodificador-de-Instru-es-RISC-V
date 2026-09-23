@@ -11,6 +11,11 @@ int bitsParaNumero(const string &bits) {
     return stoi(bits, nullptr, 2);
 }
 
+long bitsParaNumeroComSinal(const string &bits) {
+    unsigned long valor = stoul(bits, nullptr, 2);
+    return static_cast<int32_t>(valor);
+}
+
 string nomeABI(int registrador) {
     if (registrador < 0 || registrador > 31) return "x?";
     return NOMES_ABI[registrador];

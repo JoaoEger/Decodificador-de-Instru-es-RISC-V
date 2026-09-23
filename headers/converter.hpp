@@ -3,6 +3,7 @@
 
 #include "instruction.hpp"
 #include <array>
+#include <cstdint>
 #include <iomanip>
 #include <sstream>
 #include <vector>
@@ -10,6 +11,7 @@
 using namespace std;
 
 int bitsParaNumero(const string &bits);
+long bitsParaNumeroComSinal(const string &bits);
 string nomeABI(int registrador);
 
 string toHex(unsigned int value, int width);
