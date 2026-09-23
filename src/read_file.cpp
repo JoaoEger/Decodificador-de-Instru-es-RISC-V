@@ -32,6 +32,14 @@ bool ehFormatoBinario(const string &linha) {
     return linha.size() > 8;
 }
 
+bool ehFormatoHexadecimal(const string &linha) {
+    for (char c : linha) {
+        if (!isxdigit(c)) return false;
+    }
+
+    return linha.size() <= 8;
+}
+
 string converterParaBinario32(const string &linha, bool ehBinario) {
     string binary;
 
@@ -51,7 +59,7 @@ string converterParaBinario32(const string &linha, bool ehBinario) {
     return binary;
 }
 
-vector<LinhaLida> lerArquivoInstrucoes(const string &caminho) {
+vector<LinhaLida> lerArquivoInstrucoes(const string &caminho, string enderecoInicial) {
     vector<LinhaLida> resultado;
 
     ifstream arquivo(caminho);
@@ -61,7 +69,7 @@ vector<LinhaLida> lerArquivoInstrucoes(const string &caminho) {
     }
 
     string linha;
-    unsigned int endereco = 0x00000000;
+    unsigned int endereco = stoul(enderecoInicial, nullptr, 16);
     while (getline(arquivo, linha)) {
         string linhaLimpa;
         if (!prepararLinha(linha, linhaLimpa)) continue;

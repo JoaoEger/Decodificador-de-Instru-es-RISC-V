@@ -11,9 +11,10 @@ struct LinhaLida {
     string binary;
 };
 
-vector<LinhaLida> lerArquivoInstrucoes(const string &caminho); 
+vector<LinhaLida> lerArquivoInstrucoes(const string &caminho, string enderecoInicial);
 bool prepararLinha(const string &linhaOriginal, string &linhaLimpa);
 bool ehFormatoBinario(const string &linha);
+bool ehFormatoHexadecimal(const string &linha);
 string converterParaBinario32(const string &linha, bool ehBinario);
 
 #endif
