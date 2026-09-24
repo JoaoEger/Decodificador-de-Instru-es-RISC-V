@@ -71,12 +71,24 @@ vector<LinhaLida> lerArquivoInstrucoes(const string &caminho, string enderecoIni
     }
 
     string linha;
+    int numeroLinha = 0;
     unsigned int endereco = stoul(enderecoInicial, nullptr, 16); // R1: endereço-base configurável
     while (getline(arquivo, linha)) {
+        numeroLinha++;
         string linhaLimpa;
         if (!prepararLinha(linha, linhaLimpa)) continue;
 
-        bool binario = ehFormatoBinario(linhaLimpa);
+        // Valida antes de converter: sem isso, qualquer linha que não fosse binária
+        // ia direto pro stoul como hex e um caractere inválido derrubava o programa
+        // Binário com mais de 32 bits e "0x" sozinho (linha vazia) também são rejeitados
+        bool binario = ehFormatoBinario(linhaLimpa) && linhaLimpa.size() <= 32;
+        bool hexadecimal = !linhaLimpa.empty() && ehFormatoHexadecimal(linhaLimpa);
+        if (!binario && !hexadecimal) {
+            cerr << "Aviso: linha " << numeroLinha << " ignorada, formato invalido: \""
+                 << linhaLimpa << "\"\n";
+            continue;
+        }
+
         string binary32 = converterParaBinario32(linhaLimpa, binario);
 
         resultado.push_back({endereco, binary32});

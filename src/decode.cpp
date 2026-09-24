@@ -1,19 +1,19 @@
 #include "decode.hpp"
 
-// Extrai um intervalo de bits [bitAlto:bitBaixo] de uma string
-string extractBits(const string &binary, int bitAlto, int bitBaixo) {
-    int indiceInicio = 31 - bitAlto;
-    int quantidade = bitAlto - bitBaixo + 1;
-    return binary.substr(indiceInicio, quantidade);
-}
-
-string findOpcode(string &instruction) {
-    return extractBits(instruction, 6, 0);
-}
-
-// Extende o sinal de uma string binária até 32 bits
-static string signExtend(const string &bits) {
-    char bitDeSinal = bits[0];
+// Extrai um intervalo de bits [bitAlto:bitBaixo] de uma string                 // 31        25 24   20 19   15 14  12 11        7 6      0
+string extractBits(const string &binary, int bitAlto, int bitBaixo) {           //┌────────────┬───────┬───────┬──────┬───────────┬────────┐
+    int indiceInicio = 31 - bitAlto;                                            //│   funct7   │  rs2  │  rs1  │funct3│    rd     │ opcode │  R
+    int quantidade = bitAlto - bitBaixo + 1;                                    //├────────────┴───────┼───────┼──────┼───────────┼────────┤
+    return binary.substr(indiceInicio, quantidade);                             //│     imm[11:0]      │  rs1  │funct3│    rd     │ opcode │  I
+}                                                                               //├────────────┬───────┼───────┼──────┼───────────┼────────┤
+                                                                                //│ imm[11:5]  │  rs2  │  rs1  │funct3│ imm[4:0]  │ opcode │  S
+string findOpcode(string &instruction) {                                        //├────────────┴───────┴───────┴──────┼───────────┼────────┤
+    return extractBits(instruction, 6, 0);                                      //│imm[12|10:5]│  rs2  │  rs1  │funct3│imm[4:1|11]│ opcode │  B
+}                                                                               //├────────────┴───────┴───────┴──────┼───────────┼────────┤
+                                                                                //│           imm[31:12]              │    rd     │ opcode │  U
+// Extende o sinal de uma string binária até 32 bits                            //├───────────────────────────────────┼───────────┼────────┤
+static string signExtend(const string &bits) {                                  //│     imm[20|10:1|11|19:12]         │    rd     │ opcode │  J
+    char bitDeSinal = bits[0];                                                  //└───────────────────────────────────┴───────────┴────────┘
     return string(32 - bits.size(), bitDeSinal) + bits;
 }
 
