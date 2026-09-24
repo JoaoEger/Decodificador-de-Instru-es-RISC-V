@@ -33,7 +33,9 @@ Autores: Eduardo Spezia e João Eger.
 │   ├── report.cpp       # formatação da saída e relatório estatístico
 │   └── cpi_calculator.cpp
 ├── Makefile
-├── machine_code.txt    # exemplo de arquivo de entrada
+├── fibonacci_function.txt  # exemplo de entrada: cálculo de Fibonacci (hex)
+├── sum_function.txt        # casos de teste do grupo: todos os formatos + desvio negativo (hex)
+├── leaf_function.txt       # função folha f = (g + h) - (i + j) (binário)
 └── README.md
 ```
 
@@ -83,10 +85,10 @@ Adicione o endereco inicial das instrucoes (em hexadecimal, apenas os digitos ap
 
 ### Exemplo
 
-Com o arquivo [`machine_code.txt`](machine_code.txt) incluso no repositório:
+Com o arquivo [`fibonacci_function.txt`](fibonacci_function.txt) incluso no repositório:
 
 ```bash
-./decodificador machine_code.txt
+./decodificador fibonacci_function.txt
 ```
 
 Digite `0` (ou qualquer endereço-base desejado) quando solicitado. A saída mostra, para cada instrução, o endereço, a palavra original, o formato, o mnemônico, os campos extraídos e o assembly desmontado, seguida do relatório estatístico:
@@ -95,13 +97,14 @@ Digite `0` (ou qualquer endereço-base desejado) quando solicitado. A saída mos
 =====================================================================================
 Endereco   | Instrucao  | Tipo     | Mnemoni. | Registradores -> Assembly
 =====================================================================================
-0x00000000 | 0x00500413 | I        | addi     | rd=8 rs1=0 imm=5 opcode=0010011 function3=0  ->  addi s0, zero, 5
-0x00000004 | 0x00c58633 | R        | add      | rd=12 rs1=11 rs2=12 opcode=0110011 function3=0 function7=0  ->  add a2, a1, a2
-0x00000008 | 0x0064a423 | S        | sw       | rs1=9 rs2=6 imm=8 opcode=0100011 function3=2  ->  sw t1, 8(s1)
+0x00000000 | 0x00000013 | I        | addi     | rd=0 rs1=0 imm=0 opcode=0010011 function3=0  ->  addi zero, zero, 0  (pseudo: nop)
+0x00000004 | 0x100002b7 | U        | lui      | rd=5 imm=268435456 opcode=0110111  ->  lui t0, 0x10000
+0x00000008 | 0x00028293 | I        | addi     | rd=5 rs1=5 imm=0 opcode=0010011 function3=0  ->  addi t0, t0, 0  (pseudo: mv)
 ...
-Total de Instruções: N
-CPI Médio: X.XXXXXX
-Instruções R-type: N (XX.X%)
+Total de Instrucoes: 41
+CPI Medio: 1.468293
+Instrucoes R-type: 3 (7.3%)
+Instrucoes I-type: 27 (65.9%)
 ...
 ```
 
@@ -113,4 +116,29 @@ Instruções R-type: N (XX.X%)
 
 ## Testando manualmente
 
-O arquivo [`machine_code.txt`](machine_code.txt) traz um pequeno programa de exemplo (cálculo de Fibonacci) que exercita vários formatos de instrução. Recomenda-se montar também um conjunto de testes próprio, cobrindo pelo menos uma instrução de cada formato (`R`, `I`, `S`, `B`, `U`, `J`) e um desvio com deslocamento negativo, conforme pedido no enunciado do trabalho.
+O repositório traz três arquivos de teste. Todos os exemplos abaixo assumem o endereço inicial `00000000`.
+
+| Arquivo | Programa | Formato da entrada | Formatos de instrução |
+|---|---|---|---|
+| [`fibonacci_function.txt`](fibonacci_function.txt) | Cálculo da sequência de Fibonacci | hexadecimal | R, I, S, B, U, J |
+| [`sum_function.txt`](sum_function.txt) | Somas acumuladas de 0 a 9, gravadas na memória | hexadecimal | R, I, S, B, U, J |
+| [`leaf_function.txt`](leaf_function.txt) | Função folha `f = (g + h) - (i + j)` com `g=0, h=1, i=2, j=3` (resultado `a0 = -4`) | binário | R, I, S, J |
+
+### Conjunto de testes do grupo: `sum_function.txt`
+
+Este arquivo atende ao requisito do enunciado: tem pelo menos uma instrução de cada formato e um desvio com deslocamento negativo.
+
+| Formato | Instrução no teste | Endereço |
+|---|---|---|
+| R | `add t2, t2, t0` | `0x00000010` |
+| I | `addi`, `slli`, `lw`, `jalr`, `ecall` | vários |
+| S | `sw t2, 0(t4)` | `0x0000001c` |
+| B | `blt t0, t1, laco` (**imm = -20**, volta para o início do laço) | `0x00000024` |
+| U | `lui s0, 0x10000` | `0x00000000` |
+| J | `jal ra, imprime` | `0x0000002c` |
+
+```bash
+./decodificador sum_function.txt
+```
+
+O [`leaf_function.txt`](leaf_function.txt) também tem um salto com deslocamento negativo: o `jal ra, 0x00000004` em `0x00000048` (imm = -68). Ele ainda serve para testar a entrada em binário.
