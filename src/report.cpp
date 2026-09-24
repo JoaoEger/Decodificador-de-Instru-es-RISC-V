@@ -53,6 +53,7 @@ string relatorioCPI(const vector<Instruction> &instrucoes) {
         else if (inst.type == "U") totalInstU++;
         else if (inst.type == "J") totalInstJ++;
     }
+
     auto percentual = [totalInstrucoes](int quantidade) {
         double percentual = totalInstrucoes == 0 ? 0.0 : (100.0 * quantidade / totalInstrucoes);
         ostringstream out;
@@ -60,12 +61,12 @@ string relatorioCPI(const vector<Instruction> &instrucoes) {
         return out.str();
     };
 
-    return "Total de Instruções: " + to_string(totalInstrucoes) + "\n" +
-           "CPI Médio: " + to_string(cpiMedio) + "\n" +
-           "Instruções R-type: " + to_string(totalInstR) + " (" + percentual(totalInstR) + ")\n" +
-           "Instruções I-type: " + to_string(totalInstI) + " (" + percentual(totalInstI) + ")\n" +
-           "Instruções S-type: " + to_string(totalInstS) + " (" + percentual(totalInstS) + ")\n" +
-           "Instruções B-type: " + to_string(totalInstB) + " (" + percentual(totalInstB) + ")\n" +
-           "Instruções U-type: " + to_string(totalInstU) + " (" + percentual(totalInstU) + ")\n" +
-           "Instruções J-type: " + to_string(totalInstJ) + " (" + percentual(totalInstJ) + ")";
+    return "Total de Instrucoes: " + to_string(totalInstrucoes) + "\n" +
+           "CPI Medio: " + to_string(cpiMedio) + "\n" +
+           "Instrucoes R-type: " + to_string(totalInstR) + " (" + percentual(totalInstR) + ")\n" +
+           "Instrucoes I-type: " + to_string(totalInstI) + " (" + percentual(totalInstI) + ")\n" +
+           "Instrucoes S-type: " + to_string(totalInstS) + " (" + percentual(totalInstS) + ")\n" +
+           "Instrucoes B-type: " + to_string(totalInstB) + " (" + percentual(totalInstB) + ")\n" +
+           "Instrucoes U-type: " + to_string(totalInstU) + " (" + percentual(totalInstU) + ")\n" +
+           "Instrucoes J-type: " + to_string(totalInstJ) + " (" + percentual(totalInstJ) + ")";
 }

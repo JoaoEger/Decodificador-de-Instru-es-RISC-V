@@ -43,6 +43,9 @@ string paraAssembly(const Instruction &inst) {
         bool usaFormatoOffset = inst.mnemonic == "lb" || inst.mnemonic == "lh" || inst.mnemonic == "lw"
             || inst.mnemonic == "lbu" || inst.mnemonic == "lhu" || inst.mnemonic == "jalr";
 
+        if (inst.mnemonic == "ecall" || inst.mnemonic == "ebreak") {
+            return inst.mnemonic;
+        }
         if (usaFormatoOffset) {
             return inst.mnemonic + " " + nomeABI(bitsParaNumero(inst.rd)) + ", "
                 + to_string(bitsParaNumeroComSinal(inst.imm)) + "(" + nomeABI(bitsParaNumero(inst.rs1)) + ")";

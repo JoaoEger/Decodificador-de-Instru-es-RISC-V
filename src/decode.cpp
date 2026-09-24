@@ -19,7 +19,7 @@ static string signExtend(const string &bits) {
 
 string identifyType(string &opcode) {
     if (opcode == "0110011") return "R";
-    if (opcode == "0010011" || opcode == "0000011" || opcode == "1100111") return "I";
+    if (opcode == "0010011" || opcode == "0000011" || opcode == "1100111" || opcode == "1110011") return "I";
     if (opcode == "0100011") return "S";
     if (opcode == "1100011") return "B";
     if (opcode == "0110111" || opcode == "0010111") return "U";
@@ -69,6 +69,13 @@ string identifyMnemonic(string &binary, string &type) {
             return "invalid";
         }
         if (opcode == "1100111") return "jalr";
+
+        if (opcode == "1110011") {
+            string immBits = extractBits(binary, 31, 20);
+            if (immBits == "000000000000") return "ecall";
+            if (immBits == "000000000001") return "ebreak";
+            return "invalid";
+        }
 
         return "invalid";
     }
