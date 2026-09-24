@@ -21,6 +21,9 @@ string formatarLinhaSaida(const Instruction &inst) {
 
     return out.str();
 }
+// Reconhece pseudo-instruções comuns a partir dos campos já decodificados
+// A ordem importa: nop é um caso específico de mv (addi rd, rs1, 0), então
+// precisa ser checado antes pra não ser "engolido" pelo caso genérico
 string identificarPseudoInstrucao(const Instruction &inst) {
     // addi x0, x0, 0 = nop
     if (inst.mnemonic == "addi" && bitsParaNumero(inst.rd) == 0 && bitsParaNumero(inst.rs1) == 0 && bitsParaNumeroComSinal(inst.imm) == 0) {

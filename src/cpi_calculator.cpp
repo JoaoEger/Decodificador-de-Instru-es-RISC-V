@@ -1,5 +1,8 @@
 #include "cpi_calculator.hpp"
 
+// Média ponderada pela ocorrência de cada formato: somar o CPI de cada
+// instrução individualmente e dividir pelo total é matematicamente igual a
+// (qtd_R * CPI_R + qtd_I * CPI_I + ...) / total, só que sem precisar contar antes
 double calcularCPIMedio(const vector<Instruction> &instrucoes){
     if (instrucoes.empty()) return 0.0;
 

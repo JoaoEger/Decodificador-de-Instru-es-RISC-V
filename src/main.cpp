@@ -48,6 +48,8 @@ int main(int argc, char *argv[]) {
 
     cerr << "Instrucoes invalidas encontradas nos enderecos: ";
     for (const Instruction &inst : instrucoes) {
+        // Cobre os dois jeitos de "não reconhecida", opcode desconhecido
+        // (type == "INVALID") e opcode válido mas funct3/funct7 sem mnemônico mapeado.
         if (inst.type == "INVALID" || inst.mnemonic == "invalid") {
             cerr << toHex(inst.address, 8) << ", ";
         }

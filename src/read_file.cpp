@@ -11,11 +11,11 @@ bool prepararLinha(const string &linhaOriginal, string &linhaLimpa) {
 
     if (linha.empty()) return false;
 
-    // Comentário: linha começando com '#' ou '//'.
+    // Comentário: linha começando com '#' ou '//'
     if (linha[0] == '#') return false;
     if (linha.size() >= 2 && linha[0] == '/' && linha[1] == '/') return false;
 
-    // Remove prefixo 0x/0X se presente.
+    // Remove prefixo 0x/0X se presente
     if (linha.size() >= 2 && linha[0] == '0' && (linha[1] == 'x' || linha[1] == 'X')) {
         linha = linha.substr(2);
     }
@@ -24,6 +24,8 @@ bool prepararLinha(const string &linhaOriginal, string &linhaLimpa) {
     return true;
 }
         
+// Um hex de 8 dígitos também pode ser só '0'/'1' (ex: "00110011"), então
+// o size() > 8 é o que desempata: binário de 32 bits sempre tem mais de 8 chars.
 bool ehFormatoBinario(const string &linha) {
     for (char c : linha) {
         if (c != '0' && c != '1') return false;
@@ -69,7 +71,7 @@ vector<LinhaLida> lerArquivoInstrucoes(const string &caminho, string enderecoIni
     }
 
     string linha;
-    unsigned int endereco = stoul(enderecoInicial, nullptr, 16);
+    unsigned int endereco = stoul(enderecoInicial, nullptr, 16); // R1: endereço-base configurável
     while (getline(arquivo, linha)) {
         string linhaLimpa;
         if (!prepararLinha(linha, linhaLimpa)) continue;

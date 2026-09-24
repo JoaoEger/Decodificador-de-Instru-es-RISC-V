@@ -1,6 +1,8 @@
 #include "instruction.hpp"
 #include "decode.hpp"
 
+// Ponto de entrada da decodificação: descobre o formato pelo opcode e
+// despacha pro extrator correspondente, que sabe onde estão os campos daquele formato
 Instruction decode_instruction(string &binary, unsigned int address) {
     string opcode = findOpcode(binary);
     string type = identifyType(opcode);

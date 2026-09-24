@@ -70,6 +70,8 @@ string identifyMnemonic(string &binary, string &type) {
         }
         if (opcode == "1100111") return "jalr";
 
+        // ecall/ebreak usam o mesmo opcode de I mas não têm rd/rs1/imm de
+        // verdade, os 12 bits do "imm" só servem pra distinguir os dois
         if (opcode == "1110011") {
             string immBits = extractBits(binary, 31, 20);
             if (immBits == "000000000000") return "ecall";
@@ -106,7 +108,7 @@ string identifyMnemonic(string &binary, string &type) {
 }
 
 // Monta os campos comuns a qualquer tipo de instrução; o tipo é
-// descoberto a partir do opcode, não fixado por quem chama.
+// descoberto a partir do opcode, não fixado por quem chama
 static Instruction baseInstruction(string &binary, unsigned int address) {
     Instruction inst;
     inst.address = address;
@@ -161,6 +163,9 @@ Instruction extract_B(string &binary, unsigned int address) {
     inst.rs1 = extractBits(binary, 19, 15);
     inst.rs2 = extractBits(binary, 24, 20);
 
+    // Bits do imediato vêm fora de ordem no formato B (economiza espaço
+    // mantendo o bit 0 dos formatos R/I/S/U na mesma posição). O "0" final
+    // é o bit menos significativo, sempre 0, pois desvios são alinhados em 2 bytes
     string bit12 = extractBits(binary, 31, 31);
     string bit11 = extractBits(binary, 7, 7);
     string bits10_5 = extractBits(binary, 30, 25);
@@ -172,6 +177,8 @@ Instruction extract_B(string &binary, unsigned int address) {
 Instruction extract_U(string &binary, unsigned int address) {
     Instruction inst = baseInstruction(binary, address);
     inst.rd = extractBits(binary, 11, 7);
+    // imm[31:12] já ocupa os 20 bits mais altos; os 12 bits baixos são
+    // sempre 0 por definição do formato (lui/auipc carregam só a parte alta)
     inst.imm = extractBits(binary, 31, 12) + string(12, '0');
     return finish(inst, binary);
 }
@@ -180,6 +187,7 @@ Instruction extract_J(string &binary, unsigned int address) {
     Instruction inst = baseInstruction(binary, address);
     inst.rd = extractBits(binary, 11, 7);
 
+    // Mesma ideia do formato B: bits embaralhados + bit 0 implícito (sempre 0)
     string bit20 = extractBits(binary, 31, 31);
     string bits19_12 = extractBits(binary, 19, 12);
     string bit11 = extractBits(binary, 20, 20);
