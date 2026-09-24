@@ -70,7 +70,7 @@ string paraAssembly(const Instruction &inst) {
     if(inst.type == "U"){
         return inst.mnemonic + " "
             + nomeABI(bitsParaNumero(inst.rd)) + ", "
-            + to_string(bitsParaNumeroComSinal(inst.imm));
+            + toHex(bitsParaNumero(inst.full_instruction.substr(0, 20)), 5);
     }
     if(inst.type == "J"){
         long destino = bitsParaNumeroComSinal(inst.imm) + static_cast<long>(inst.address);
