@@ -23,16 +23,21 @@ string formatarLinhaSaida(const Instruction &inst) {
 }
 string identificarPseudoInstrucao(const Instruction &inst) {
     // addi x0, x0, 0 = nop
-    if (inst.mnemonic == "addi" && bitsParaNumero(inst.rd) == 0 && bitsParaNumero(inst.rs1) == 0
-        && bitsParaNumeroComSinal(inst.imm) == 0) {
+    if (inst.mnemonic == "addi" && bitsParaNumero(inst.rd) == 0 && bitsParaNumero(inst.rs1) == 0 && bitsParaNumeroComSinal(inst.imm) == 0) {
         return "nop";
     }
     // jalr x0, 0(x1) = ret
-    if (inst.mnemonic == "jalr" && bitsParaNumero(inst.rd) == 0 && bitsParaNumero(inst.rs1) == 1
-        && bitsParaNumeroComSinal(inst.imm) == 0) {
+    if (inst.mnemonic == "jalr" && bitsParaNumero(inst.rd) == 0 && bitsParaNumero(inst.rs1) == 1 && bitsParaNumeroComSinal(inst.imm) == 0) {
         return "ret";
     }
-
+    // addi x1, x0, 0 = mv x1, x0
+    if (inst.mnemonic == "addi" && bitsParaNumeroComSinal(inst.imm) == 0) {
+        return "mv";
+    }
+    // xori x1, x0, -1 = not x1, x0
+    if (inst.mnemonic == "xori" && bitsParaNumeroComSinal(inst.imm) == -1) {
+        return "not";
+    }
     return "";
 }
 
