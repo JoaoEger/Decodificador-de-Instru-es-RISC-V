@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
         Instruction inst = decode_instruction(linha.binary, linha.address);
         instrucoes.push_back(inst);
 
-        if (inst.type == "INVALID") {
+        if (inst.type == "INVALID" || inst.mnemonic == "invalid") {
             cerr << "Instrucao invalida no endereco 0x" << hex << inst.address << dec << "\n";
         }
     }
