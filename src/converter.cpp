@@ -33,6 +33,46 @@ string binaryToHex(const string &binary) {
 }
 
 string paraAssembly(const Instruction &inst) {
-    return inst.mnemonic;
-    // a fazer, return só pra testar
+    if(inst.type == "R"){
+        return inst.mnemonic + " "
+            + nomeABI(bitsParaNumero(inst.rd)) + ", "
+            + nomeABI(bitsParaNumero(inst.rs1)) + ", "
+            + nomeABI(bitsParaNumero(inst.rs2));
+    }
+    if(inst.type == "I"){
+        bool usaFormatoOffset = inst.mnemonic == "lb" || inst.mnemonic == "lh" || inst.mnemonic == "lw"
+            || inst.mnemonic == "lbu" || inst.mnemonic == "lhu" || inst.mnemonic == "jalr";
+
+        if (usaFormatoOffset) {
+            return inst.mnemonic + " " + nomeABI(bitsParaNumero(inst.rd)) + ", "
+                + to_string(bitsParaNumeroComSinal(inst.imm)) + "(" + nomeABI(bitsParaNumero(inst.rs1)) + ")";
+        }
+
+        return inst.mnemonic + " "
+            + nomeABI(bitsParaNumero(inst.rd)) + ", "
+            + nomeABI(bitsParaNumero(inst.rs1)) + ", "
+            + to_string(bitsParaNumeroComSinal(inst.imm));
+    }
+    if(inst.type == "S"){
+        return inst.mnemonic + " " + nomeABI(bitsParaNumero(inst.rs2)) + ", "
+            + to_string(bitsParaNumeroComSinal(inst.imm)) + "(" + nomeABI(bitsParaNumero(inst.rs1)) + ")";
+    }
+    if(inst.type == "B"){
+        long destino = bitsParaNumeroComSinal(inst.imm) + static_cast<long>(inst.address);
+        return inst.mnemonic + " "
+            + nomeABI(bitsParaNumero(inst.rs1)) + ", "
+            + nomeABI(bitsParaNumero(inst.rs2)) + ", "
+            + toHex(static_cast<unsigned int>(destino), 8);
+    }
+    if(inst.type == "U"){
+        return inst.mnemonic + " "
+            + nomeABI(bitsParaNumero(inst.rd)) + ", "
+            + to_string(bitsParaNumeroComSinal(inst.imm));
+    }
+    if(inst.type == "J"){
+        long destino = bitsParaNumeroComSinal(inst.imm) + static_cast<long>(inst.address);
+        return inst.mnemonic + " " + nomeABI(bitsParaNumero(inst.rd)) + ", "
+            + toHex(static_cast<unsigned int>(destino), 8);
+    }
+    return "";
 }
