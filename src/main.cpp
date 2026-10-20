@@ -2,6 +2,7 @@
 #include "read_file.hpp"
 #include "converter.hpp"
 #include "report.hpp"
+#include "hazards.hpp"
 #include <iostream>
 using namespace std;
 
@@ -45,6 +46,9 @@ int main(int argc, char *argv[]) {
     cout << string(130, '=') << "\n";
     cout << "\n";
     cout << relatorioCPI(instrucoes) << "\n\n";
+
+    imprimirHazards(instrucoes, detectarHazards(instrucoes));
+    cout << "\n";
 
     cerr << "Instrucoes invalidas encontradas nos enderecos: ";
     for (const Instruction &inst : instrucoes) {
