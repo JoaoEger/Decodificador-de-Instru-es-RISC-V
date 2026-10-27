@@ -55,8 +55,8 @@ void imprimirHazards(const vector<Instruction> &instrucoes, const vector<Hazard>
     for (const Hazard &h : hazards) {
         const Instruction &consumidor = instrucoes[h.consumidor];
         const Instruction &produtor = instrucoes[h.produtor];
-        cout << "  " << toHex(consumidor.address, 8) << "  " << left << setw(24) << paraAssembly(consumidor)
-             << "<- " << toHex(produtor.address, 8) << "  " << setw(24) << paraAssembly(produtor)
+        cout << "  " << toHex(consumidor.address, 8) << "  " << left << setw(26) << paraAssembly(consumidor)
+             << "<- " << toHex(produtor.address, 8) << "  " << setw(26) << paraAssembly(produtor)
              << "[" << nomeABI(h.registrador) << ", d=" << h.distancia << ", " << h.nops << " nops]\n";
     }
 }
