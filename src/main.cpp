@@ -3,6 +3,7 @@
 #include "converter.hpp"
 #include "report.hpp"
 #include "hazards.hpp"
+#include "control.hpp"
 #include <iostream>
 using namespace std;
 
@@ -48,6 +49,15 @@ int main(int argc, char *argv[]) {
     cout << relatorioCPI(instrucoes) << "\n\n";
 
     imprimirHazards(instrucoes, detectarHazards(instrucoes));
+    cout << "\n";
+
+    vector<Desvio> desvios = detectarDesvios(instrucoes);
+    vector<BlocoBasico> blocos = calcularBlocos(instrucoes, desvios);
+    vector<ConflitoFronteira> fronteira;
+    for (const Desvio &d : desvios) {
+        for (const ConflitoFronteira &c : conflitosNaFronteira(instrucoes, d)) fronteira.push_back(c);
+    }
+    imprimirConflitosControle(instrucoes, desvios, blocos, fronteira);
     cout << "\n";
 
     cerr << "Instrucoes invalidas encontradas nos enderecos: ";
