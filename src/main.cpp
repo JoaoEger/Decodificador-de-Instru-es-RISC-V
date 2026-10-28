@@ -4,6 +4,7 @@
 #include "report.hpp"
 #include "hazards.hpp"
 #include "control.hpp"
+#include "correction.hpp"
 #include <iostream>
 using namespace std;
 
@@ -59,6 +60,18 @@ int main(int argc, char *argv[]) {
     }
     imprimirConflitosControle(instrucoes, desvios, blocos, fronteira);
     cout << "\n";
+
+    if (!instrucoes.empty()) {
+        vector<LinhaCorrigida> somenteNops = corrigirComNops(instrucoes);
+        cout << "PROGRAMA CORRIGIDO (SOMENTE NOPS)\n";
+        imprimirProgramaCorrigido(somenteNops, instrucoes[0].address);
+
+        // Conferência: rodando o R1 no programa novo não pode sobrar conflito
+        vector<Instruction> novo;
+        for (const LinhaCorrigida &linha : somenteNops) novo.push_back(linha.inst);
+        cout << "  " << instrucoes.size() << " -> " << somenteNops.size() << " instrucoes, conflitos restantes: "
+             << detectarHazards(novo).size() << "\n\n";
+    }
 
     cerr << "Instrucoes invalidas encontradas nos enderecos: ";
     for (const Instruction &inst : instrucoes) {
