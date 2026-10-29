@@ -17,4 +17,7 @@ struct LinhaCorrigida {
 vector<LinhaCorrigida> corrigirComNops(const vector<Instruction> &instrucoes);
 void imprimirProgramaCorrigido(const vector<LinhaCorrigida> &programa, unsigned int enderecoInicial);
 
+LinhaCorrigida criarNop(string motivo);
+int nopsNecessarios(const vector<LinhaCorrigida> &saida, const Instruction &inst);
+
 #endif

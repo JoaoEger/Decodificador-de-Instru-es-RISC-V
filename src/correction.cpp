@@ -4,7 +4,7 @@
 #include "converter.hpp"
 
 // nop = addi zero, zero, 0 = 0x00000013
-static LinhaCorrigida criarNop(string motivo) {
+LinhaCorrigida criarNop(string motivo) {
     string binario = "00000000000000000000000000010011";
     LinhaCorrigida nop;
     nop.inst = decode_instruction(binario, 0);
@@ -17,7 +17,7 @@ static LinhaCorrigida criarNop(string motivo) {
 // inclusos, eles não escrevem nada) e vê quantos nops a instrução precisa.
 // Usa o maior valor entre os registradores lidos, não a soma: os mesmos
 // nops afastam a instrução de todos os produtores ao mesmo tempo
-static int nopsNecessarios(const vector<LinhaCorrigida> &saida, const Instruction &inst) {
+int nopsNecessarios(const vector<LinhaCorrigida> &saida, const Instruction &inst) {
     int nops = 0;
     for (int reg : registradoresLidos(inst)) {
         for (int d = 1; d <= 2 && d <= (int)saida.size(); d++) {
@@ -63,7 +63,7 @@ vector<LinhaCorrigida> corrigirComNops(const vector<Instruction> &instrucoes) {
         if (ehDesvio(inst)) saida.push_back(criarNop("slot de atraso"));
     }
     return saida;
-}
+};
 
 // O endereço novo é só a posição no programa novo. Os desvios ainda
 // mostram o alvo antigo: o recálculo dos deslocamentos é o R6

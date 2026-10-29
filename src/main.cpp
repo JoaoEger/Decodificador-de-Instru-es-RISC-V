@@ -5,6 +5,7 @@
 #include "hazards.hpp"
 #include "control.hpp"
 #include "correction.hpp"
+#include "reorder.hpp"
 #include <iostream>
 using namespace std;
 
@@ -71,6 +72,15 @@ int main(int argc, char *argv[]) {
         for (const LinhaCorrigida &linha : somenteNops) novo.push_back(linha.inst);
         cout << "  " << instrucoes.size() << " -> " << somenteNops.size() << " instrucoes, conflitos restantes: "
              << detectarHazards(novo).size() << "\n\n";
+
+        vector<LinhaCorrigida> comReordenacao = reordenarComNops(instrucoes);
+        cout << "PROGRAMA CORRIGIDO (NOPS + REORDENACAO)\n";
+        imprimirProgramaCorrigido(comReordenacao, instrucoes[0].address);
+
+        vector<Instruction> novoReordenado;
+        for (const LinhaCorrigida &linha : comReordenacao) novoReordenado.push_back(linha.inst);
+        cout << "  " << instrucoes.size() << " -> " << comReordenacao.size() << " instrucoes, conflitos restantes: "
+             << detectarHazards(novoReordenado).size() << "\n\n";
     }
 
     cerr << "Instrucoes invalidas encontradas nos enderecos: ";
