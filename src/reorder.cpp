@@ -1,6 +1,7 @@
 #include "reorder.hpp"
 #include "hazards.hpp"
 #include "converter.hpp"
+#include "realocation.hpp"
 #include <algorithm>
 #include <climits>
 using namespace std;
@@ -237,6 +238,25 @@ static bool criaConflitoNoSlot(const Instruction &candidato, const vector<Instru
     return false;
 }
 
+// A candidata ao slot fica logo depois do desvio. Se ela le um registrador
+// escrito pela instrucao que vem antes do desvio (d=2) ou pelo proprio
+// desvio (d=1), nao ha onde colocar o nop: o slot ja esta ocupado. Simula a
+// saida (ordem + nops do desvio + desvio) pra ver se sobra conflito.
+static bool conflitaComAnteriores(const vector<LinhaCorrigida> &saida, const vector<Instruction> &instrucoes,
+                                   const vector<size_t> &ordemAntes, size_t desvio, size_t candidato) {
+    vector<LinhaCorrigida> copia = saida;
+    inserirOrdem(copia, instrucoes, ordemAntes);
+    int nops = nopsNecessarios(copia, instrucoes[desvio]);
+    for (int k = 0; k < nops; k++) copia.push_back(criarNop("conflito de dados"));
+
+    LinhaCorrigida linhaDesvio;
+    linhaDesvio.inst = instrucoes[desvio];
+    linhaDesvio.indiceOriginal = (int)desvio;
+    copia.push_back(linhaDesvio);
+
+    return nopsNecessarios(copia, instrucoes[candidato]) > 0;
+}
+
 static void reordenarBloco(const vector<Instruction> &instrucoes, const BlocoBasico &bloco,
                             const vector<Desvio> &desvios, vector<LinhaCorrigida> &saida) {
     vector<size_t> todos;
@@ -291,6 +311,7 @@ static void reordenarBloco(const vector<Instruction> &instrucoes, const BlocoBas
         for (size_t c : permutavel) if (c != candidato) restante.push_back(c);
 
         vector<size_t> ordem = melhorOrdem(saida, instrucoes, restante, grafo);
+        if (conflitaComAnteriores(saida, instrucoes, ordem, bloco.fim, candidato)) continue;
         int custo = custoDaOrdem(saida, instrucoes, ordem);
         if (custo < melhorCusto) {
             melhorCusto = custo;
@@ -338,5 +359,8 @@ vector<LinhaCorrigida> reordenarComNops(const vector<Instruction> &instrucoes) {
     for (const BlocoBasico &bloco : blocos) {
         reordenarBloco(instrucoes, bloco, desvios, saida);
     }
+
+    // Nops extras do caminho tomado e recalculo dos desvios (R6)
+    finalizarPrograma(saida, instrucoes);
     return saida;
 }

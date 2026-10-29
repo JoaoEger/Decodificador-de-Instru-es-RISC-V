@@ -12,6 +12,7 @@ struct LinhaCorrigida {
     Instruction inst;
     int indiceOriginal;   // posição no programa original, -1 se for nop inserido
     string marcacao;      // vazio pra instrução original
+    bool nopDoCaminho = false; // nop que o caminho tomado de um desvio precisa (o desvio salta pra ele, não pro alvo)
 };
 
 vector<LinhaCorrigida> corrigirComNops(const vector<Instruction> &instrucoes);

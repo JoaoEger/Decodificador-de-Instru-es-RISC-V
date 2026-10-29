@@ -6,6 +6,7 @@
 #include "control.hpp"
 #include "correction.hpp"
 #include "reorder.hpp"
+#include "realocation.hpp"
 #include <iostream>
 using namespace std;
 
@@ -63,6 +64,7 @@ int main(int argc, char *argv[]) {
     cout << "\n";
 
     if (!instrucoes.empty()) {
+        avisosDeRelocacao(instrucoes);
         vector<LinhaCorrigida> somenteNops = corrigirComNops(instrucoes);
         cout << "PROGRAMA CORRIGIDO (SOMENTE NOPS)\n";
         imprimirProgramaCorrigido(somenteNops, instrucoes[0].address);
@@ -71,7 +73,10 @@ int main(int argc, char *argv[]) {
         vector<Instruction> novo;
         for (const LinhaCorrigida &linha : somenteNops) novo.push_back(linha.inst);
         cout << "  " << instrucoes.size() << " -> " << somenteNops.size() << " instrucoes, conflitos restantes: "
-             << detectarHazards(novo).size() << "\n\n";
+             << detectarHazards(novo).size() << "\n";
+        int conferidosNops = 0;
+        int divergenciasNops = verificarRelocacao(somenteNops, instrucoes, conferidosNops);
+        cout << "  desvios recalculados e conferidos: " << conferidosNops << ", divergencias: " << divergenciasNops << "\n\n";
 
         vector<LinhaCorrigida> comReordenacao = reordenarComNops(instrucoes);
         cout << "PROGRAMA CORRIGIDO (NOPS + REORDENACAO)\n";
@@ -80,7 +85,10 @@ int main(int argc, char *argv[]) {
         vector<Instruction> novoReordenado;
         for (const LinhaCorrigida &linha : comReordenacao) novoReordenado.push_back(linha.inst);
         cout << "  " << instrucoes.size() << " -> " << comReordenacao.size() << " instrucoes, conflitos restantes: "
-             << detectarHazards(novoReordenado).size() << "\n\n";
+             << detectarHazards(novoReordenado).size() << "\n";
+        int conferidosReord = 0;
+        int divergenciasReord = verificarRelocacao(comReordenacao, instrucoes, conferidosReord);
+        cout << "  desvios recalculados e conferidos: " << conferidosReord << ", divergencias: " << divergenciasReord << "\n\n";
     }
 
     cerr << "Instrucoes invalidas encontradas nos enderecos: ";

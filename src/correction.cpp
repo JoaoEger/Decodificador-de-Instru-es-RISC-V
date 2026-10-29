@@ -2,6 +2,7 @@
 #include "hazards.hpp"
 #include "control.hpp"
 #include "converter.hpp"
+#include "realocation.hpp"
 
 // nop = addi zero, zero, 0 = 0x00000013
 LinhaCorrigida criarNop(string motivo) {
@@ -32,25 +33,14 @@ int nopsNecessarios(const vector<LinhaCorrigida> &saida, const Instruction &inst
 
 // R3 + R4 numa passada só: monta o programa novo instrução por instrução,
 // colocando antes de cada uma os nops que ela precisa (R3) e um nop
-// depois de cada desvio pra ocupar o slot de atraso (R4)
+// depois de cada desvio pra ocupar o slot de atraso (R4). No fim, o R6
+// (relocation.cpp) acerta os nops do caminho tomado e os deslocamentos
 vector<LinhaCorrigida> corrigirComNops(const vector<Instruction> &instrucoes) {
-    vector<Desvio> desvios = detectarDesvios(instrucoes);
     vector<LinhaCorrigida> saida;
 
     for (size_t i = 0; i < instrucoes.size(); i++) {
         const Instruction &inst = instrucoes[i];
         int nops = nopsNecessarios(saida, inst);
-
-        // Caminho tomado: com nop no slot fica "desvio, nop, alvo", então o
-        // desvio está a d=2 do alvo. Só o jal escreve registrador (ra), e se o
-        // alvo ler esse registrador precisa de mais 1 nop
-        for (const Desvio &d : desvios) {
-            if (d.indiceAlvo != (int)i) continue;
-            int escrito = registradorEscrito(instrucoes[d.indice]);
-            for (int reg : registradoresLidos(inst)) {
-                if (reg == escrito) nops = max(nops, 1);
-            }
-        }
 
         for (int k = 0; k < nops; k++) saida.push_back(criarNop("conflito de dados"));
 
@@ -62,11 +52,14 @@ vector<LinhaCorrigida> corrigirComNops(const vector<Instruction> &instrucoes) {
 
         if (ehDesvio(inst)) saida.push_back(criarNop("slot de atraso"));
     }
-    return saida;
-};
 
-// O endereço novo é só a posição no programa novo. Os desvios ainda
-// mostram o alvo antigo: o recálculo dos deslocamentos é o R6
+    // Nops extras do caminho tomado (jal -> alvo) e recálculo dos desvios (R6)
+    finalizarPrograma(saida, instrucoes);
+    return saida;
+}
+
+// O endereço novo é a posição no programa novo. Os desvios já saem com o
+// deslocamento recalculado (R6), então o alvo mostrado é o novo
 void imprimirProgramaCorrigido(const vector<LinhaCorrigida> &programa, unsigned int enderecoInicial) {
     for (size_t k = 0; k < programa.size(); k++) {
         const LinhaCorrigida &linha = programa[k];
