@@ -1,0 +1,20 @@
+// Chamada de funcao (jal ra + ret): o slot do jal NAO pode receber instrucao util,
+// porque o ret volta para o endereco do slot e ela executaria duas vezes
+//
+// 0x00500393  addi t2, zero, 5
+// 0x00100293  addi t0, zero, 1
+// 0x00200313  addi t1, zero, 2
+// 0x00138393  addi t2, t2, 1      # nao pode ir para o slot do jal
+// 0x00c000ef  jal  ra, funcao
+// 0x00a00893  addi a7, zero, 10
+// 0x00000073  ecall               # encerra
+// 0x00008067  funcao: ret
+//
+0x00500393
+0x00100293
+0x00200313
+0x00138393
+0x00c000ef
+0x00a00893
+0x00000073
+0x00008067

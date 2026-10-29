@@ -1,0 +1,20 @@
+// Reordenacao elimina todos os nops: ha instrucoes independentes suficientes
+// para afastar o add do lw e para ocupar o slot do beq (somente nops: 8 -> 11, reordenado: 8 -> 8)
+//
+// 0x00042283  lw   t0, 0(s0)
+// 0x00528333  add  t1, t0, t0     # depende do lw (d=1)
+// 0x00100393  addi t2, zero, 1    # independente
+// 0x00200e13  addi t3, zero, 2    # independente
+// 0x00300e93  addi t4, zero, 3    # independente
+// 0x000f0463  beq  t5, zero, fim
+// 0x00100513  addi a0, zero, 1
+// 0x00200593  fim: addi a1, zero, 2
+//
+0x00042283
+0x00528333
+0x00100393
+0x00200e13
+0x00300e93
+0x000f0463
+0x00100513
+0x00200593

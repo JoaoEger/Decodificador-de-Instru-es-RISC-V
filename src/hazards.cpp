@@ -23,6 +23,12 @@ vector<int> registradoresLidos(const Instruction &inst) {
         int rs2 = bitsParaNumero(inst.rs2);
         if (rs2 != 0) lidos.push_back(rs2);
     }
+    // ecall lê a7 (qual serviço) e a0 (argumento), mesmo sem esses
+    // registradores aparecerem nos campos da instrução
+    if (inst.mnemonic == "ecall") {
+        lidos.push_back(17);
+        lidos.push_back(10);
+    }
     return lidos;
 }
 

@@ -1,0 +1,15 @@
+// Laco com desvio condicional para tras (blt volta para o inicio do laco)
+//
+// 0x00000293  addi t0, zero, 0
+// 0x00500313  addi t1, zero, 5
+// 0x00128293  laco: addi t0, t0, 1
+// 0x00338393  addi t2, t2, 3      # independente: candidata ao slot
+// 0xfe62cce3  blt  t0, t1, laco   # desvio para tras
+// 0x00028513  addi a0, t0, 0
+//
+0x00000293
+0x00500313
+0x00128293
+0x00338393
+0xfe62cce3
+0x00028513

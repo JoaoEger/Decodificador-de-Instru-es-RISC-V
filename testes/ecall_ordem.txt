@@ -1,0 +1,14 @@
+// ecall le a7 e a0 implicitamente: a reordenacao nao pode passar o ecall
+// para antes do addi que prepara a0 (deve imprimir 1, nao 0)
+//
+// 0x10010437  lui  s0, 0x10010
+// 0x00042503  lw  a0, 0(s0)
+// 0x00150513  addi a0, a0, 1
+// 0x00100893  addi a7, zero, 1    # imprimir inteiro
+// 0x00000073  ecall
+//
+0x10010437
+0x00042503
+0x00150513
+0x00100893
+0x00000073

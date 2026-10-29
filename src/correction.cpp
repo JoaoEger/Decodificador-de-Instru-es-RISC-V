@@ -59,12 +59,13 @@ vector<LinhaCorrigida> corrigirComNops(const vector<Instruction> &instrucoes) {
 }
 
 // O endereço novo é a posição no programa novo. Os desvios já saem com o
-// deslocamento recalculado (R6), então o alvo mostrado é o novo
-void imprimirProgramaCorrigido(const vector<LinhaCorrigida> &programa, unsigned int enderecoInicial) {
+// deslocamento recalculado (R6), então o alvo mostrado é o novo.
+// "out" pode ser o cout ou um arquivo (listagem do R7)
+void imprimirProgramaCorrigido(ostream &out, const vector<LinhaCorrigida> &programa, unsigned int enderecoInicial) {
     for (size_t k = 0; k < programa.size(); k++) {
         const LinhaCorrigida &linha = programa[k];
         string assembly = linha.indiceOriginal == -1 ? "nop" : paraAssembly(linha.inst);
-        cout << "  " << toHex(enderecoInicial + 4 * k, 8) << "  " << binaryToHex(linha.inst.full_instruction)
+        out << "  " << toHex(enderecoInicial + 4 * k, 8) << "  " << binaryToHex(linha.inst.full_instruction)
              << "  " << left << setw(26) << assembly << linha.marcacao << "\n";
     }
 }

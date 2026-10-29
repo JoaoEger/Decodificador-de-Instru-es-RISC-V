@@ -7,6 +7,7 @@
 #include "correction.hpp"
 #include "reorder.hpp"
 #include "realocation.hpp"
+#include "output.hpp"
 #include <iostream>
 using namespace std;
 
@@ -67,7 +68,7 @@ int main(int argc, char *argv[]) {
         avisosDeRelocacao(instrucoes);
         vector<LinhaCorrigida> somenteNops = corrigirComNops(instrucoes);
         cout << "PROGRAMA CORRIGIDO (SOMENTE NOPS)\n";
-        imprimirProgramaCorrigido(somenteNops, instrucoes[0].address);
+        imprimirProgramaCorrigido(cout, somenteNops, instrucoes[0].address);
 
         // Conferência: rodando o R1 no programa novo não pode sobrar conflito
         vector<Instruction> novo;
@@ -80,7 +81,7 @@ int main(int argc, char *argv[]) {
 
         vector<LinhaCorrigida> comReordenacao = reordenarComNops(instrucoes);
         cout << "PROGRAMA CORRIGIDO (NOPS + REORDENACAO)\n";
-        imprimirProgramaCorrigido(comReordenacao, instrucoes[0].address);
+        imprimirProgramaCorrigido(cout, comReordenacao, instrucoes[0].address);
 
         vector<Instruction> novoReordenado;
         for (const LinhaCorrigida &linha : comReordenacao) novoReordenado.push_back(linha.inst);
@@ -89,6 +90,25 @@ int main(int argc, char *argv[]) {
         int conferidosReord = 0;
         int divergenciasReord = verificarRelocacao(comReordenacao, instrucoes, conferidosReord);
         cout << "  desvios recalculados e conferidos: " << conferidosReord << ", divergencias: " << divergenciasReord << "\n\n";
+
+        // R7: arquivo no formato da entrada + listagem legível, pra cada técnica
+        bool binario = entradaEmBinario(caminhoInstrucoes);
+        unsigned int base = instrucoes[0].address;
+        string arqNops = caminhoSaida(caminhoInstrucoes, "_nops.txt");
+        string arqReord = caminhoSaida(caminhoInstrucoes, "_reordenado.txt");
+        string lstNops = caminhoSaida(caminhoInstrucoes, "_nops_listagem.txt");
+        string lstReord = caminhoSaida(caminhoInstrucoes, "_reordenado_listagem.txt");
+
+        cout << "ARQUIVOS GERADOS\n";
+        if (salvarPrograma(arqNops, somenteNops, binario, "programa corrigido somente com nops")) cout << "  " << arqNops << "\n";
+        if (salvarListagem(lstNops, somenteNops, base, "LISTAGEM - SOMENTE NOPS")) cout << "  " << lstNops << "\n";
+        if (salvarPrograma(arqReord, comReordenacao, binario, "programa corrigido com nops + reordenacao")) cout << "  " << arqReord << "\n";
+        if (salvarListagem(lstReord, comReordenacao, base, "LISTAGEM - NOPS + REORDENACAO")) cout << "  " << lstReord << "\n";
+        cout << "\n";
+
+        // R8
+        imprimirCusto(instrucoes.size(), somenteNops.size(), comReordenacao.size());
+        cout << "\n";
     }
 
     cerr << "Instrucoes invalidas encontradas nos enderecos: ";

@@ -1,0 +1,21 @@
+// Desvio para a frente (beq) e salto para a frente com jal ra.
+// A instrucao logo depois do beq escreve t1, que o alvo le: pelo caminho tomado
+// o conflito tem d=1, diferente do d=2 que aparece pela ordem da memoria
+//
+// 0x00100293  addi t0, zero, 1
+// 0x00028663  beq  t0, zero, alvo # desvio para a frente
+// 0x00500313  addi t1, zero, 5
+// 0x00130393  addi t2, t1, 1
+// 0x00530e33  alvo: add t3, t1, t0
+// 0x008000ef  jal  ra, destino    # jal escreve ra
+// 0x00000e93  addi t4, zero, 0
+// 0x00008f13  destino: addi t5, ra, 0  # le ra (d=2 do jal pelo caminho tomado)
+//
+0x00100293
+0x00028663
+0x00500313
+0x00130393
+0x00530e33
+0x008000ef
+0x00000e93
+0x00008f13

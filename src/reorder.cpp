@@ -88,6 +88,12 @@ vector<Dependencia> construirGrafo(const vector<Instruction> &instrucoes, const 
                 podemSobrepor(instrucoes, i, j)) {
                 grafo.push_back({i, j, "MEM"});
             }
+
+            // ecall tem efeito fora do processador (imprime, encerra o
+            // programa): nenhuma instrucao pode trocar de lado com ele
+            if (instrucoes[i].mnemonic == "ecall" || instrucoes[j].mnemonic == "ecall") {
+                grafo.push_back({i, j, "SYS"});
+            }
         }
     }
 
@@ -220,10 +226,11 @@ static bool criaConflitoNoSlot(const Instruction &candidato, const vector<Instru
     int escrito = registradorEscrito(candidato);
     if (escrito == -1) return false;
 
+    // No programa original o caminho nao tomado comeca logo depois do desvio
     if (desvio.condicional) {
-        size_t depoisDoSlot = desvio.indice + 2;
-        if (depoisDoSlot < instrucoes.size()) {
-            for (int reg : registradoresLidos(instrucoes[depoisDoSlot])) {
+        size_t inicioNaoTomado = desvio.indice + 1;
+        if (inicioNaoTomado < instrucoes.size()) {
+            for (int reg : registradoresLidos(instrucoes[inicioNaoTomado])) {
                 if (reg == escrito) return true;
             }
         }
@@ -279,11 +286,14 @@ static void reordenarBloco(const vector<Instruction> &instrucoes, const BlocoBas
         if (d.indice == bloco.fim) { desvioInfo = &d; break; }
     }
 
-    int escritoPeloDesvio = registradorEscrito(instrucoes[bloco.fim]);
+    // jal/jalr que escreve rd (chamada de funcao) guarda o endereco do slot:
+    // o ret volta pra ele e a instrucao do slot executaria duas vezes.
+    // Nesse caso o slot fica com nop
+    bool desvioEhChamada = registradorEscrito(instrucoes[bloco.fim]) != -1;
 
     vector<size_t> candidatos;
     for (size_t c : permutavel) {
-        if (ehSink(c, todos, grafo)) candidatos.push_back(c);
+        if (!desvioEhChamada && ehSink(c, todos, grafo)) candidatos.push_back(c);
     }
     sort(candidatos.begin(), candidatos.end(), greater<size_t>());
 
@@ -292,17 +302,6 @@ static void reordenarBloco(const vector<Instruction> &instrucoes, const BlocoBas
     size_t slotEscolhido = SIZE_MAX; // SIZE_MAX = nenhuma candidata segura, usa nop
 
     for (size_t candidato : candidatos) {
-        // Se o desvio escreve um registrador que a candidata le, colocar
-        // ela logo depois (d=1, sem como inserir nop ali sem "quebrar" o
-        // slot) seria um hazard -- descarta.
-        if (escritoPeloDesvio != -1) {
-            bool leDoDesvio = false;
-            for (int reg : registradoresLidos(instrucoes[candidato])) {
-                if (reg == escritoPeloDesvio) { leDoDesvio = true; break; }
-            }
-            if (leDoDesvio) continue;
-        }
-
         if (desvioInfo != nullptr && criaConflitoNoSlot(instrucoes[candidato], instrucoes, *desvioInfo)) {
             continue;
         }

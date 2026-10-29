@@ -1,0 +1,13 @@
+// Cadeia de dependencias sem nenhuma instrucao independente:
+// cada instrucao le o resultado da anterior, entao a reordenacao nao tem o que mover
+// e as duas tecnicas precisam do mesmo numero de nops
+//
+// 0x0002a303  lw   t1, 0(t0)
+// 0x00130393  addi t2, t1, 1      # depende do lw (d=1)
+// 0x00738e33  add  t3, t2, t2     # depende do addi (d=1)
+// 0x01c2a023  sw   t3, 0(t0)      # depende do add (d=1)
+//
+0x0002a303
+0x00130393
+0x00738e33
+0x01c2a023
